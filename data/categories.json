@@ -1,0 +1,34 @@
+[
+  {
+    "_id": "6209382fc22e136c413b79a0",
+    "name": "Програм хангамж",
+    "description": "computer science, programming, coding",
+    "photo": "it.jpg",
+    "createdAt": "2022-02-13T16:56:15.378Z",
+    "__v": 0
+  },
+  {
+    "_id": "623a96962490479b0e1f945f",
+    "name": "Түүх",
+    "description": "history, tuuh, world history",
+    "photo": "it.jpg",
+    "createdAt": "2022-02-13T16:56:15.378Z",
+    "__v": 0
+  },
+  {
+    "_id": "620957bfc37cdc33cb9fd050",
+    "name": "Уран зохиол",
+    "description": "love, science, war, sex",
+    "photo": "literature.jpg",
+    "createdAt": "2022-02-13T19:10:55.384Z",
+    "__v": 0
+  },
+  {
+    "_id": "620e682a7608370a877eb65e",
+    "name": "Шинжлэх ухаан",
+    "description": "quantum and classic physics",
+    "photo": "science.jpg",
+    "createdAt": "2022-02-17T15:22:18.508Z",
+    "__v": 0
+  }
+]
