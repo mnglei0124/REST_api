@@ -32,7 +32,7 @@ exports.getCategories = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCategory = asyncHandler(async (req, res, next) => {
-  const category = await Category.findById(req.params.id);
+  const category = await Category.findById(req.params.id).populate("books");
   if (!category) {
     throw new MyError(
       `category with ID -> ${req.params.id} is not found!`,
@@ -64,12 +64,15 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 });
 
 exports.deleteCategory = asyncHandler(async (req, res, next) => {
-  const category = await Category.findByIdAndDelete(req.params.id);
+  const category = await Category.findById(req.params.id);
   if (!category) {
     throw new MyError(
       `category with ID -> ${req.params.id} is not found!`,
       400
     );
   }
+
+  category.remove();
+
   res.status(200).json({ success: true, data: category });
 });

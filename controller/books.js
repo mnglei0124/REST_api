@@ -10,7 +10,10 @@ exports.getBooks = asyncHandler(async (req, res, next) => {
   if (req.params.categoryId) {
     query = Book.find({ category: req.params.categoryId });
   } else {
-    query = Book.find();
+    query = Book.find().populate({
+      path: "category",
+      select: "name averagePrice",
+    });
   }
 
   const books = await query;
