@@ -59,6 +59,32 @@ const BookSchema = new mongoose.Schema(
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
+BookSchema.statics.computeCategoryAveragePrice = async function (categoryId) {
+  const obj = await this.aggregate([
+    { $match: { category: categoryId } },
+    { $group: { _id: "$category", avgPrice: { $avg: "$price" } } },
+  ]);
+
+  console.log(obj);
+  let avgPrice = null;
+
+  if (obj.length > 0) avgPrice = obj[0].avgPrice;
+
+  await this.model("Category").findByIdAndUpdate(categoryId, {
+    averagePrice: obj[0].avgPrice,
+  });
+
+  return obj;
+};
+
+BookSchema.pre("save", function () {
+  this.constructor.computeCategoryAveragePrice(this.category);
+});
+
+BookSchema.post("remove", function () {
+  this.constructor.computeCategoryAveragePrice(this.category);
+});
+
 BookSchema.virtual("lalar").get(function () {
   let tokens = this.author_name.split(" ");
   if (tokens.length === 1) tokens = this.author_name.split(".");

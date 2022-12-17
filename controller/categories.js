@@ -39,6 +39,7 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
       400
     );
   }
+
   res.status(200).json({ success: true, data: category });
 });
 

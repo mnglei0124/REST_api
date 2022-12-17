@@ -53,7 +53,7 @@ CategorySchema.pre("remove", async function (next) {
 CategorySchema.pre("save", function (next) {
   this.slug = slugify(this.name);
   this.averageRating = Math.floor(Math.random() * 10) + 1;
-  this.averagePrice = Math.floor(Math.random() * 100000) + 3000;
+  //this.averagePrice = Math.floor(Math.random() * 100000) + 3000;
   next();
 });
 

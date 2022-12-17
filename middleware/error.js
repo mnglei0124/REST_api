@@ -3,6 +3,8 @@ const colors = require("colors");
 const errorHandler = (err, req, res, next) => {
   const error = { ...err };
 
+  error.message = err.message;
+
   if (error.name === "CastError") {
     error.message = "ID has a wrong structure";
     error.statusCode = 400;
