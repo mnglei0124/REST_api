@@ -6,6 +6,7 @@ const {
   createCategory,
   updateCategory,
   deleteCategory,
+  uploadCategoryPhoto,
 } = require("../controller/categories");
 
 //const { getBooks } = require("../controller/books");
@@ -13,6 +14,8 @@ const {
 const router = express.Router();
 
 router.route("/").get(getCategories).post(createCategory);
+
+router.route("/:id/photos").put(uploadCategoryPhoto);
 
 // router.route("/:categoryId/books").get(getBooks);
 const booksRouter = require("./books");

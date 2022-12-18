@@ -1,5 +1,6 @@
 const Book = require("../models/Book");
 const Category = require("../models/Category");
+const path = require("path");
 const MyError = require("../utils/myError");
 const asyncHandler = require("express-async-handler");
 
@@ -35,11 +36,10 @@ exports.getBook = asyncHandler(async (req, res, next) => {
       404
     );
   }
-  const avg = await Book.computeCategoryAveragePrice(book.category);
+
   res.status(200).json({
     success: true,
     data: book,
-    dundaj: avg,
   });
 });
 
@@ -85,4 +85,41 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
     throw new MyError(`book with ID -> ${req.params.id} is not found!`, 400);
   }
   res.status(200).json({ success: true, data: book });
+});
+
+// api/v1/books/:id/photo
+exports.uploadBookPhoto = asyncHandler(async (req, res, next) => {
+  const book = await Book.findById(req.params.id);
+
+  if (!book) {
+    throw new MyError(`book with ID -> ${req.params.id} is not found!`, 400);
+  }
+
+  // image upload
+  const file = req.files.file;
+  if (!file.mimetype.startsWith("image")) {
+    throw new MyError("Insert an image file!", 400);
+  }
+  if (file.size > process.env.MAX_UPLOAD_FILE_SIZE) {
+    throw new MyError("Image size exceeded!", 400);
+  }
+
+  file.name = `photo_${req.params.id}${path.parse(file.name).ext}`;
+
+  file.mv(`${process.env.FILE_UPLAOD_PATH}/${file.name}`, (err) => {
+    if (err) {
+      throw new MyError(
+        "Error while uploading the file! Error: " + err.message,
+        400
+      );
+    }
+
+    book.photo = file.name;
+    book.save();
+
+    res.status(200).json({
+      success: true,
+      data: file.name,
+    });
+  });
 });

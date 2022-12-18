@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const path = require("path");
 const rfs = require("rotating-file-stream");
 const colors = require("colors");
+const fileupload = require("express-fileupload");
 
 const categoriesRoutes = require("./routes/categories");
 const booksRoutes = require("./routes/books");
@@ -22,7 +23,7 @@ var accessLogStream = rfs.createStream("access.log", {
 const app = express();
 
 app.use(express.json());
-
+app.use(fileupload());
 app.use(logger);
 app.use(morgan("combined", { stream: accessLogStream }));
 app.use("/api/v1/categories", categoriesRoutes);
