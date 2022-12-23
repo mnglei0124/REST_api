@@ -85,7 +85,9 @@ BookSchema.post("remove", function () {
   this.constructor.computeCategoryAveragePrice(this.category);
 });
 
-BookSchema.virtual("lalar").get(function () {
+BookSchema.virtual("author").get(function () {
+  if (!this.author_name) return "";
+
   let tokens = this.author_name.split(" ");
   if (tokens.length === 1) tokens = this.author_name.split(".");
   if (tokens.length === 2) return tokens[1];
