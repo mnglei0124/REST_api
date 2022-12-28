@@ -5,13 +5,16 @@ const path = require("path");
 const rfs = require("rotating-file-stream");
 const colors = require("colors");
 const fileupload = require("express-fileupload");
-
-const categoriesRoutes = require("./routes/categories");
-const booksRoutes = require("./routes/books");
 const logger = require("./middleware/logger");
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/error");
 
+//Routers
+const categoriesRoutes = require("./routes/categories");
+const booksRoutes = require("./routes/books");
+const usersRoutes = require("./routes/users");
+
+//Send app settings to process.env
 dotenv.config({ path: "./config/config.env" });
 connectDB();
 
@@ -28,6 +31,7 @@ app.use(logger);
 app.use(morgan("combined", { stream: accessLogStream }));
 app.use("/api/v1/categories", categoriesRoutes);
 app.use("/api/v1/books", booksRoutes);
+app.use("/api/v1/users", usersRoutes);
 app.use(errorHandler);
 
 const server = app.listen(
