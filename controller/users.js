@@ -19,19 +19,19 @@ exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    throw MyError("Insert email or passowrd correctly!", 400);
+    throw new MyError("Insert email or passowrd correctly!", 400);
   }
 
   const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
-    throw MyError("email or password is incorrect!", 401);
+    throw new MyError("email or password is incorrect!", 401);
   }
 
   const ok = await user.checkPassword(password);
 
   if (!ok) {
-    throw MyError("email or password is incorrect!", 401);
+    throw new MyError("email or password is incorrect!", 401);
   }
 
   res.status(200).json({
@@ -39,4 +39,63 @@ exports.login = asyncHandler(async (req, res, next) => {
     token: user.getJsonWebToken(),
     user,
   });
+});
+
+exports.getUsers = asyncHandler(async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  const sort = req.query.sort;
+  const select = req.query.select;
+
+  ["select", "sort", "limit", "page"].forEach((el) => delete req.query[el]);
+
+  const pagination = await paginate(page, limit, User);
+
+  const users = await User.find(req.query, select)
+    .sort(sort)
+    .skip(pagination.start - 1)
+    .limit(limit);
+
+  res.status(200).json({
+    success: true,
+    data: users,
+    pagination,
+  });
+});
+
+exports.getUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    throw new MyError(`user with ID -> ${req.params.id} is not found!`, 400);
+  }
+
+  res.status(200).json({ success: true, data: user });
+});
+
+exports.createUser = asyncHandler(async (req, res, next) => {
+  const user = await User.create(req.body);
+  res.status(200).json({ success: true, data: user });
+});
+
+exports.updateUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!user) {
+    throw new MyError(`user with ID -> ${req.params.id} is not found!`, 400);
+  }
+  res.status(200).json({ success: true, data: user });
+});
+
+exports.deleteUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    throw new MyError(`user with ID -> ${req.params.id} is not found!`, 400);
+  }
+
+  user.remove();
+
+  res.status(200).json({ success: true, data: user });
 });

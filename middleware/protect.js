@@ -1,6 +1,6 @@
 const JWT = require("jsonwebtoken");
 const asyncHandler = require("./asyncHandler");
-const MyError = require("./error");
+const MyError = require("../utils/myError");
 const User = require("../models/User");
 
 exports.protect = asyncHandler(async (req, res, next) => {
@@ -19,7 +19,19 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
   const tokenObj = JWT.verify(token, process.env.JWT_SECRET);
 
-  req.user = await User.findById(tokenObj.id);
-
+  req.userId = tokenObj.id;
+  req.userRole = tokenObj.role;
   next();
 });
+
+exports.authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.userRole)) {
+      throw new MyError(
+        `You're not authorized! Your role --> [${req.userRole}]`,
+        403
+      );
+    }
+    next();
+  };
+};

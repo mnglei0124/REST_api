@@ -1,5 +1,6 @@
 const Book = require("../models/Book");
 const Category = require("../models/Category");
+const User = require("../models/User");
 const path = require("path");
 const MyError = require("../utils/myError");
 const asyncHandler = require("express-async-handler");
@@ -86,6 +87,8 @@ exports.createBook = asyncHandler(async (req, res, next) => {
     );
   }
 
+  req.body.createUser = req.userId;
+
   const book = await Book.create(req.body);
 
   res.status(200).json({
@@ -104,13 +107,17 @@ exports.deleteBook = asyncHandler(async (req, res, next) => {
     );
   }
   book.remove();
+
+  const user = await User.findById(req.userId);
   res.status(200).json({
     success: true,
     data: book,
+    whoDeleted: user.name,
   });
 });
 
 exports.updateBook = asyncHandler(async (req, res, next) => {
+  req.body.updateUser = req.userId;
   const book = await Book.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
