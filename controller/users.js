@@ -99,3 +99,24 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true, data: user });
 });
+
+exports.forgotPassword = asyncHandler(async (req, res, next) => {
+  if (!req.body.email) {
+    throw new MyError("Insert an email!", 400);
+  }
+
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    throw new MyError(
+      `user with email -> ${req.body.email} is not found!`,
+      400
+    );
+  }
+
+  user.resetPasswordToken = user.generatePasswordChangeToken();
+  user.save();
+  //send an email
+
+  res.status(200).json({ success: true, data: user.resetPasswordToken });
+});

@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const JWT = require("jsonwebtoken");
+const crypto = require("crypto");
+const { nextTick } = require("process");
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -16,7 +18,7 @@ const UserSchema = new mongoose.Schema({
   role: {
     type: String,
     required: [true, "Insert user role!"],
-    enum: ["user", "operator"],
+    enum: ["user", "operator", "admin"],
     default: "user",
   },
   password: {
@@ -33,7 +35,9 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-UserSchema.pre("save", async function () {
+UserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) next();
+
   console.time("salt");
   const salt = await bcrypt.genSalt(10);
   console.timeEnd("salt");
@@ -54,8 +58,14 @@ UserSchema.methods.getJsonWebToken = function () {
   return token;
 };
 
-UserSchema.methods.checkPassword = async function (enteretdPassword) {
-  return await bcrypt.compare(enteretdPassword, this.password);
+UserSchema.methods.checkPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+UserSchema.methods.generatePasswordChangeToken = function () {
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  return resetToken;
 };
 
 module.exports = mongoose.model("User", UserSchema);

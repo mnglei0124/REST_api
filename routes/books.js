@@ -12,12 +12,15 @@ const {
 
 const router = express.Router();
 
-router.route("/").get(getBooks).post(protect, authorize("admin"), createBook);
+router
+  .route("/")
+  .get(getBooks)
+  .post(protect, authorize("admin", "operator"), createBook);
 
 router
   .route("/:id")
   .get(getBook)
-  .delete(protect, authorize("admin"), deleteBook)
+  .delete(protect, authorize("admin", "operator"), deleteBook)
   .put(protect, authorize("admin", "operator"), updateBook);
 
 router
