@@ -3,6 +3,8 @@ const MyError = require("../utils/myError");
 const path = require("path");
 const asyncHandler = require("express-async-handler");
 const paginate = require("../utils/paginate");
+const sendEmail = require("../utils/email");
+const crypto = require("crypto");
 
 exports.register = asyncHandler(async (req, res, next) => {
   const user = await User.create(req.body);
@@ -114,9 +116,49 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     );
   }
 
-  user.resetPasswordToken = user.generatePasswordChangeToken();
-  user.save();
-  //send an email
+  const resetToken = user.generatePasswordChangeToken();
+  await user.save();
 
-  res.status(200).json({ success: true, data: user.resetPasswordToken });
+  //send an email
+  const link = `https://mnglei.mn/changepassword/${resetToken}`;
+
+  const message = `Click the link below to change your password!<br><br><a target="_blanks" href="${link}">Eniig dar psda min</a>
+  `;
+  const info = await sendEmail({
+    email: user.email,
+    subject: "Password change!",
+    message,
+  });
+  console.log("Message sent: %s", info.messageId);
+
+  res.status(200).json({ success: true, resetToken, message });
+});
+
+exports.resetPassword = asyncHandler(async (req, res, next) => {
+  if (!req.body.resetToken || !req.body.password) {
+    throw new MyError("Please insert token and password", 400);
+  }
+
+  const encrypted = crypto
+    .createHash("sha256")
+    .update(req.body.resetToken)
+    .digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken: encrypted,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new MyError(`Token is expired!`, 400);
+  }
+
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save();
+
+  const token = user.getJsonWebToken();
+
+  res.status(200).json({ success: true, token, user: user });
 });
