@@ -28,6 +28,19 @@ exports.getCategories = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCategory = asyncHandler(async (req, res, next) => {
+  req.db.teacher.create({
+    id: 1,
+    name: "kamisama",
+    phone: 08063072244,
+    password: "123456",
+  });
+  req.db.course.create({
+    id: 2,
+    name: "physics",
+    price: 40000,
+    description: "physics physics",
+  });
+
   const category = await Category.findById(req.params.id).populate("books");
   if (!category) {
     throw new MyError(
