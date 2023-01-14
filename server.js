@@ -13,6 +13,7 @@ const injectDb = require("./middleware/injectDb");
 const categoriesRoutes = require("./routes/categories");
 const booksRoutes = require("./routes/books");
 const usersRoutes = require("./routes/users");
+const commentsRoutes = require("./routes/comments");
 
 //Send app settings to process.env
 dotenv.config({ path: "./config/config.env" });
@@ -34,10 +35,16 @@ app.use(morgan("combined", { stream: accessLogStream }));
 app.use("/api/v1/categories", categoriesRoutes);
 app.use("/api/v1/books", booksRoutes);
 app.use("/api/v1/users", usersRoutes);
+app.use("/api/v1/comments", commentsRoutes);
 app.use(errorHandler);
 
+db.user.belongsToMany(db.book, { through: "comment" });
+db.book.belongsToMany(db.user, { through: "comment" });
+db.category.hasMany(db.book);
+db.book.belongsTo(db.category);
+
 db.sequelize
-  .sync()
+  .sync() //{ force: true }
   .then((result) => {
     console.log("sync done...");
   })

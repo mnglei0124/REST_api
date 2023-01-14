@@ -24,8 +24,10 @@ const sequelize = new Sequelize(
 );
 
 const models = [
-  require("../models/sequelize/Course"),
-  require("../models/sequelize/Teacher"),
+  require("../models/sequelize/user"),
+  require("../models/sequelize/book"),
+  require("../models/sequelize/category"),
+  require("../models/sequelize/comment"),
 ];
 
 models.forEach((model) => {

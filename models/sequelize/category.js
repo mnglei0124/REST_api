@@ -1,39 +1,27 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('book', {
+  return sequelize.define('category', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       primaryKey: true
     },
-    user_id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'id'
-      }
-    },
     name: {
       type: DataTypes.STRING(45),
       allowNull: true
     },
-    author: {
-      type: DataTypes.STRING(45),
+    avg_price: {
+      type: DataTypes.INTEGER.UNSIGNED,
       allowNull: true
     },
-    price: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    create_date: {
-      type: DataTypes.DATE,
+    avg_rating: {
+      type: DataTypes.INTEGER.UNSIGNED,
       allowNull: true
     }
   }, {
     sequelize,
-    tableName: 'book',
+    tableName: 'category',
     timestamps: false,
     indexes: [
       {
@@ -42,13 +30,6 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "id" },
-        ]
-      },
-      {
-        name: "book1_idx",
-        using: "BTREE",
-        fields: [
-          { name: "user_id" },
         ]
       },
     ]
