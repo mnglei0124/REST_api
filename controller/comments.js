@@ -1,10 +1,94 @@
 const MyError = require("../utils/myError");
 const path = require("path");
 const asyncHandler = require("express-async-handler");
-const paginate = require("../utils/paginate");
+const paginate = require("../utils/paginate-sequelize");
 
 exports.createComment = asyncHandler(async (req, res, next) => {
   const comment = await req.db.comment.create(req.body);
 
   res.status(200).json({ success: true, data: comment });
+});
+
+exports.updateComment = asyncHandler(async (req, res, next) => {
+  let comment = await req.db.comment.findByPk(req.params.id);
+  if (!comment) {
+    throw new MyError(
+      `Couldn't find a comment with id --> ${req.params.id}`,
+      400
+    );
+  }
+
+  comment = await comment.update(req.body);
+
+  res.status(200).json({
+    success: true,
+    data: comment,
+  });
+});
+
+exports.deleteComment = asyncHandler(async (req, res, next) => {
+  let comment = await req.db.comment.findByPk(req.params.id);
+  if (!comment) {
+    throw new MyError(
+      `Couldn't find a comment with id --> ${req.params.id}`,
+      400
+    );
+  }
+
+  comment = await comment.destroy();
+
+  res.status(200).json({
+    success: true,
+    data: comment,
+  });
+});
+
+exports.getComment = asyncHandler(async (req, res, next) => {
+  let comment = await req.db.comment.findByPk(req.params.id);
+  if (!comment) {
+    throw new MyError(
+      `Couldn't find a comment with id --> ${req.params.id}`,
+      400
+    );
+  }
+
+  res.status(200).json({
+    success: true,
+    data: comment,
+  });
+});
+
+exports.getComments = asyncHandler(async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 4;
+
+  const sort = req.query.sort;
+  let select = req.query.select;
+
+  if (select) {
+    select = select.split(" ");
+  }
+
+  ["select", "sort", "limit", "page"].forEach((el) => delete req.query[el]);
+
+  const pagination = await paginate(page, limit, req.db.comment);
+
+  let query = {};
+
+  if (req.query) {
+    query.where = req.query;
+  }
+
+  if (select) {
+    query.attributes = select;
+  }
+
+  const comments = await req.db.comment.findAll(query);
+
+  res.status(200).json({
+    success: true,
+    data: query,
+    comments,
+    pagination,
+  });
 });
