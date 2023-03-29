@@ -73,7 +73,7 @@ exports.getComments = asyncHandler(async (req, res, next) => {
 
   const pagination = await paginate(page, limit, req.db.comment);
 
-  let query = {};
+  let query = { offset: pagination.start - 1, limit };
 
   if (req.query) {
     query.where = req.query;
@@ -81,6 +81,15 @@ exports.getComments = asyncHandler(async (req, res, next) => {
 
   if (select) {
     query.attributes = select;
+  }
+
+  if (sort) {
+    query.order = sort
+      .split(" ")
+      .map((el) => [
+        el.charAt(0) === "-" ? el.substring(1) : el,
+        el.charAt(0) === "-" ? "DESC" : "ASC",
+      ]);
   }
 
   const comments = await req.db.comment.findAll(query);
