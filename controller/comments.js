@@ -54,6 +54,7 @@ exports.getComment = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    magic: Object.keys(req.db.book.prototype),
     data: comment,
   });
 });
